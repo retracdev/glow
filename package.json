@@ -2,7 +2,7 @@
   "name": "glow",
   "private": true,
   "version": "0.1.0",
-  "description": "Glow: an interactive 3D light playground by retrac.space",
+  "description": "Glow: a creative light art tool by retrac.space",
   "license": "MIT",
   "type": "module",
   "scripts": {

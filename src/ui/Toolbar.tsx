@@ -105,7 +105,7 @@ export function Toolbar(props: ToolbarProps) {
         />
         <IconButton
           icon={Bomb}
-          label="Explosion"
+          label="Particle Burst"
           shortcut="E"
           active={tool === 'explode'}
           pressed={tool === 'explode'}

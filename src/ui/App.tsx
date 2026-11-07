@@ -15,7 +15,7 @@ const TOOL_HINTS: Record<Tool, { touch: string; mouse: string }> = {
     touch: 'Tap to place a black hole. Tap one to remove it, or drag to move it.',
     mouse: 'Click to place a black hole. Click one to remove it, or drag to move it.',
   },
-  explode: { touch: 'Tap anywhere to explode', mouse: 'Click anywhere to explode' },
+  explode: { touch: 'Tap anywhere for a Particle Burst', mouse: 'Click anywhere for a Particle Burst' },
 };
 
 export function App() {
