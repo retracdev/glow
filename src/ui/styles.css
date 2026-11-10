@@ -61,7 +61,7 @@ body {
   left: max(18px, env(safe-area-inset-left));
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   transition: opacity 0.8s var(--ease);
   pointer-events: none;
 }
@@ -74,8 +74,8 @@ body {
 
 .brand-mark {
   display: block;
-  width: 84px;
-  height: 32px;
+  width: 74px;
+  height: 28px;
   overflow: visible;
   animation: brand-hue 3.2s linear infinite;
 }
@@ -150,7 +150,7 @@ body {
 
 .brand-link img {
   display: block;
-  width: 84px;
+  width: 149px;
   height: auto;
 }
 
