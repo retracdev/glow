@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { getAccountState, subscribeAccount } from '../account/account';
 import { GlowEngine } from '../engine/GlowEngine';
 import { defaultSettings, type GlowSettings, type Tool } from '../settings';
 import { Brand } from './Brand';
 import { Hint } from './Hint';
+import { isGateOpen, LaunchGate } from './LaunchGate';
 import { SettingsPanel } from './SettingsPanel';
 import { Toolbar } from './Toolbar';
 
@@ -31,10 +33,12 @@ export function App() {
   const [idle, setIdle] = useState(false);
   const [webglError, setWebglError] = useState(false);
   const [hint, setHint] = useState<{ id: number; text: string } | null>(null);
+  const account = useSyncExternalStore(subscribeAccount, getAccountState);
+  const locked = !isGateOpen(account);
 
   const coarse = useRef(window.matchMedia('(pointer: coarse)').matches);
-  const latest = useRef({ settings, tool, frozen, mirrorX, mirrorY });
-  latest.current = { settings, tool, frozen, mirrorX, mirrorY };
+  const latest = useRef({ settings, tool, frozen, mirrorX, mirrorY, locked });
+  latest.current = { settings, tool, frozen, mirrorX, mirrorY, locked };
   const hintId = useRef(0);
 
   const showHint = useCallback((text: string) => {
@@ -58,6 +62,7 @@ export function App() {
     engine.setTool(latest.current.tool);
     engine.setFrozen(latest.current.frozen);
     engine.setMirror(latest.current.mirrorX, latest.current.mirrorY);
+    engine.setInputEnabled(!latest.current.locked);
     return () => {
       engine.dispose();
       engineRef.current = null;
@@ -68,13 +73,15 @@ export function App() {
   useEffect(() => engineRef.current?.setTool(tool), [tool]);
   useEffect(() => engineRef.current?.setFrozen(frozen), [frozen]);
   useEffect(() => engineRef.current?.setMirror(mirrorX, mirrorY), [mirrorX, mirrorY]);
+  useEffect(() => engineRef.current?.setInputEnabled(!locked), [locked]);
 
   // A first hint that disappears on its own. There is no onboarding screen.
   useEffect(() => {
+    if (locked) return;
     const text = coarse.current ? 'Drag to steer the tubes' : 'Move to steer. Drag to draw.';
     const timer = window.setTimeout(() => showHint(text), 900);
     return () => window.clearTimeout(timer);
-  }, [showHint]);
+  }, [showHint, locked]);
 
   // Controls recede when you're just watching or playing.
   useEffect(() => {
@@ -109,6 +116,7 @@ export function App() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (latest.current.locked) return;
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       const target = e.target as HTMLElement | null;
       if (target?.matches('input, select, textarea')) return;
@@ -168,8 +176,9 @@ export function App() {
           <p>Your browser or device couldn't start it. Try turning on hardware acceleration or using another browser.</p>
         </div>
       )}
+      {locked && !webglError && <LaunchGate account={account} />}
       <Brand />
-      <div className="dock">
+      {!locked && <div className="dock">
         {hint && <Hint key={hint.id} text={hint.text} />}
         {panelOpen && <SettingsPanel settings={settings} onChange={setSettings} onClose={() => setPanelOpen(false)} />}
         <Toolbar
@@ -188,7 +197,7 @@ export function App() {
           onClear={clear}
           onTogglePanel={() => setPanelOpen((v) => !v)}
         />
-      </div>
+      </div>}
     </div>
   );
 }
