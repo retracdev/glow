@@ -67,10 +67,67 @@ body {
 }
 
 .brand-name {
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  text-shadow: 0 0 18px rgb(185 178 255 / 0.55);
+  margin: 0;
+  display: flex;
+  line-height: 0;
+}
+
+.brand-mark {
+  display: block;
+  width: 62px;
+  height: 26px;
+  overflow: visible;
+  animation: brand-hue 3.2s linear infinite;
+}
+
+.brand-mark path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: brand-draw 0.9s var(--ease) forwards;
+}
+
+.brand-mark-halo {
+  stroke: url(#glow-mark-grad);
+  stroke-width: 7;
+  opacity: 0.55;
+  filter: blur(3px);
+}
+
+.brand-mark-tube {
+  stroke: url(#glow-mark-grad);
+  stroke-width: 3.4;
+}
+
+.brand-mark-core {
+  stroke: #fff;
+  stroke-width: 1.1;
+  opacity: 0.85;
+}
+
+@keyframes brand-hue {
+  to {
+    filter: hue-rotate(360deg);
+  }
+}
+
+@keyframes brand-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-mark {
+    animation-duration: 20s;
+  }
+
+  .brand-mark path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
 }
 
 .brand-sep {
