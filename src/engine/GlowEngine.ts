@@ -125,6 +125,7 @@ export class GlowEngine {
   private settings: GlowSettings;
   private tool: Tool = 'flow';
   private frozen = false;
+  private inputEnabled = true;
   private timeScale = 1;
   private simTime = 0;
   private lastFrame = 0;
@@ -365,6 +366,11 @@ export class GlowEngine {
     this.frozen = frozen;
   }
 
+  /** With input off the pointer is ignored, so the tubes keep to their idle choreography. */
+  setInputEnabled(enabled: boolean): void {
+    this.inputEnabled = enabled;
+  }
+
   setMirror(x: boolean, y: boolean): void {
     this.mirrorX = x;
     this.mirrorY = y;
@@ -485,6 +491,7 @@ export class GlowEngine {
   }
 
   private readonly onPointerDown = (e: PointerEvent): void => {
+    if (!this.inputEnabled) return;
     if (e.button !== 0 && e.pointerType === 'mouse') return;
     this.renderer.domElement.setPointerCapture(e.pointerId);
     const state: PointerState = {
@@ -535,6 +542,7 @@ export class GlowEngine {
   };
 
   private readonly onPointerMove = (e: PointerEvent): void => {
+    if (!this.inputEnabled) return;
     const state = this.pointers.get(e.pointerId);
     if (state) {
       this.ndcFromEvent(e, state);
