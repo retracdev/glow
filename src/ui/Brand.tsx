@@ -2,11 +2,11 @@ const STROKES = [
   // G
   'M27 11C23 6 12 6 9 15C6 25 13 33 21 31C25 30 27 27 27 23V22H19',
   // l (looped, flowing into o)
-  'M32 31C36 24 40 14 39 8C38 4 34 6 34 12C34 22 35 31 41 30',
+  'M36 31C41 24 46 14 45 8C44 3 37 4 37 12C37 22 38 31 44 30',
   // o
-  'M48 19C52 19 54 22 54 25C54 29 51 31 48 31C44 31 42 28 42 25C42 22 44 19 48 19Z',
+  'M58 18.5C62 18.5 64.5 21.5 64.5 25C64.5 28.5 62 31.5 58 31.5C54 31.5 51.5 28.5 51.5 25C51.5 21.5 54 18.5 58 18.5Z',
   // w with a trailing swash
-  'M58 19C58 26 60 31 63 31C66 31 67 26 67 22C67 26 68 31 71 31C74 31 76 26 76 19C77 16 80 16 83 18',
+  'M72 19C72 26 75 31 79 31C83 31 84 26 84 22C84 26 85 31 89 31C93 31 95 26 95 19C96 16 99 16 102 18',
 ];
 
 function Strokes({ className }: { className: string }) {
@@ -23,7 +23,7 @@ export function Brand() {
   return (
     <header className="brand">
       <h1 className="brand-name">
-        <svg className="brand-mark" viewBox="2 2 86 36" role="img" aria-label="Glow">
+        <svg className="brand-mark" viewBox="1 0 105 40" role="img" aria-label="Glow">
           <defs>
             <linearGradient id="glow-mark-grad" x1="0" y1="0" x2="1" y2="0.4">
               <stop offset="0" stopColor="#ff4fd8" />
