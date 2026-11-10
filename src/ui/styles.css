@@ -74,8 +74,8 @@ body {
 
 .brand-mark {
   display: block;
-  width: 62px;
-  height: 26px;
+  width: 68px;
+  height: 29px;
   overflow: visible;
   animation: brand-hue 3.2s linear infinite;
 }
@@ -91,19 +91,19 @@ body {
 
 .brand-mark-halo {
   stroke: url(#glow-mark-grad);
-  stroke-width: 7;
+  stroke-width: 11;
   opacity: 0.55;
-  filter: blur(3px);
+  filter: blur(4px);
 }
 
 .brand-mark-tube {
   stroke: url(#glow-mark-grad);
-  stroke-width: 3.4;
+  stroke-width: 5.6;
 }
 
 .brand-mark-core {
   stroke: #fff;
-  stroke-width: 1.1;
+  stroke-width: 1.9;
   opacity: 0.85;
 }
 
