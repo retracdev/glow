@@ -1112,13 +1112,18 @@ body {
 
 /* Laid out at full size from the start so it can be measured; the popup clips it. */
 .onb-warning {
-  /* Everything in the warning is sized off --s, so it scales as one piece. */
+  /* --s scales the card only. The text and buttons keep their size, centered inside it. */
   --s: 1;
   position: absolute;
   top: 50%;
   left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   width: min(calc(430px * var(--s)), calc(100vw - 34px));
-  padding: calc(30px * var(--s)) calc(28px * var(--s)) calc(22px * var(--s));
+  min-height: min(calc(350px * var(--s)), calc(100dvh - 34px));
+  padding: 30px 28px 22px;
   text-align: center;
   opacity: 0;
   transform: translate(-50%, -50%);
@@ -1130,42 +1135,46 @@ body {
   transition: opacity 0.4s ease 0.2s;
 }
 
+.onb-warning > :not(svg) {
+  width: 100%;
+  max-width: 374px;
+}
+
 .onb-warning-icon {
-  width: calc(44px * var(--s));
-  height: calc(44px * var(--s));
+  flex: none;
   color: #ffc94d;
   filter: drop-shadow(0 0 14px rgb(255 190 60 / 0.55));
 }
 
 .onb-warning h2 {
-  margin: calc(12px * var(--s)) 0 0;
-  font-size: calc(21px * var(--s));
+  margin: 12px 0 0;
+  font-size: 21px;
   font-weight: 650;
   letter-spacing: -0.02em;
 }
 
 .onb-warning p {
-  margin: calc(10px * var(--s)) 0 0;
+  margin: 10px 0 0;
   color: var(--ink-soft);
-  font-size: calc(14.5px * var(--s));
+  font-size: 14.5px;
   line-height: 1.55;
 }
 
 .onb-actions {
   display: flex;
   flex-direction: column;
-  gap: calc(6px * var(--s));
-  margin-top: calc(22px * var(--s));
+  gap: 6px;
+  margin-top: 22px;
 }
 
 .onb-continue {
-  padding: calc(13px * var(--s)) calc(16px * var(--s));
+  padding: 13px 16px;
   border: 0;
-  border-radius: calc(14px * var(--s));
+  border-radius: 14px;
   background: linear-gradient(135deg, #7b6bff, #c15cff);
   color: #fff;
   font: inherit;
-  font-size: calc(15px * var(--s));
+  font-size: 15px;
   font-weight: 650;
   cursor: pointer;
   touch-action: manipulation;
@@ -1185,18 +1194,18 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: calc(6px * var(--s));
-  padding: calc(11px * var(--s)) calc(16px * var(--s));
-  border-radius: calc(14px * var(--s));
+  gap: 6px;
+  padding: 11px 16px;
+  border-radius: 14px;
   color: var(--ink-soft);
-  font-size: calc(14px * var(--s));
+  font-size: 14px;
   text-decoration: none;
   transition: background 0.18s, color 0.18s;
 }
 
 .onb-back svg {
-  width: calc(16px * var(--s));
-  height: calc(16px * var(--s));
+  width: 16px;
+  height: 16px;
 }
 
 .onb-back:hover {
