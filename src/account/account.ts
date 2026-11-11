@@ -2,11 +2,12 @@
  * The visitor's retrac.space account, using the same flow as Simple Soundboard.
  *
  * The sign-in cookie belongs to accounts.retrac.space and is never readable here. This
- * asks that site who is signed in. Nothing is stored.
+ * asks that site who is signed in, and for short-lived tokens that are kept in memory only.
  */
 
-const ACCOUNTS = 'https://accounts.retrac.space';
+export const ACCOUNTS = 'https://accounts.retrac.space';
 const SESSION_TIMEOUT_MS = 5000;
+const TOKEN_TIMEOUT_MS = 8000;
 
 /*
  * unknown        nothing has been checked yet
@@ -105,4 +106,35 @@ export function checkAccount(): Promise<AccountState> {
 export function subscribeAccount(listener: Listener): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);
+}
+
+/** An access token request that failed. status 0 means it never completed. */
+export class TokenError extends Error {
+  constructor(public status: number) {
+    super('Token unavailable');
+  }
+}
+
+/** A fresh, short-lived (about 5 minutes) access token for retrac.space APIs. */
+export async function fetchToken(): Promise<string> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), TOKEN_TIMEOUT_MS);
+  let response: Response;
+  try {
+    response = await fetch(ACCOUNTS + '/api/auth/token', {
+      method: 'GET',
+      credentials: 'include',
+      cache: 'no-store',
+      signal: controller.signal,
+    });
+  } catch {
+    throw new TokenError(0);
+  } finally {
+    clearTimeout(timeout);
+  }
+  if (!response.ok) throw new TokenError(response.status);
+  const body = await response.json().catch(() => null);
+  const token = body?.token;
+  if (typeof token !== 'string' || !token || token.length > 8192) throw new TokenError(401);
+  return token;
 }

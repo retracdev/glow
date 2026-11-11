@@ -1,8 +1,10 @@
 import {
   Bomb,
+  Camera,
   Eraser,
   FlipHorizontal2,
   FlipVertical2,
+  Images,
   Maximize,
   Minimize,
   Orbit,
@@ -63,6 +65,8 @@ interface ToolbarProps {
   onChaos: () => void;
   onClear: () => void;
   onTogglePanel: () => void;
+  onGallery: () => void;
+  onCamera: () => void;
 }
 
 export function Toolbar(props: ToolbarProps) {
@@ -145,6 +149,11 @@ export function Toolbar(props: ToolbarProps) {
           className={chaos ? `is-chaos${frozen ? ' is-paused' : ''}` : undefined}
           onClick={props.onChaos}
         />
+      </div>
+      <span className="tb-divider" aria-hidden="true" />
+      <div className="tb-group" role="group" aria-label="Photos">
+        <IconButton icon={Images} label="Gallery" shortcut="G" onClick={props.onGallery} />
+        <IconButton icon={Camera} label="Take a photo" shortcut="P" onClick={props.onCamera} />
       </div>
       <span className="tb-divider" aria-hidden="true" />
       <div className="tb-group" role="group" aria-label="Canvas">

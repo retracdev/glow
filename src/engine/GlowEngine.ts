@@ -132,6 +132,10 @@ export class GlowEngine {
   private raf = 0;
   private running = true;
   private disposed = false;
+  // While held, the last frame stays on screen and nothing moves (used for photos).
+  private held = false;
+  private heldDirty = false;
+  private captureWaiters: ((photo: HTMLCanvasElement | null) => void)[] = [];
 
   private width = 1;
   private height = 1;
@@ -385,6 +389,41 @@ export class GlowEngine {
     this.callbacks.onChaosChange?.(true);
   }
 
+  /**
+   * Holds the next rendered frame on screen and resolves with a copy of it, at most
+   * `maxSide` pixels on its longest side. Resolves null if WebGL isn't drawing.
+   * The picture stays held until release().
+   */
+  capture(maxSide = 2560): Promise<HTMLCanvasElement | null> {
+    if (!this.running || this.disposed) return Promise.resolve(null);
+    return new Promise((resolve) => {
+      this.captureWaiters.push((frame) => {
+        if (!frame) return resolve(null);
+        const scale = Math.min(1, maxSide / Math.max(frame.width, frame.height));
+        const photo = document.createElement('canvas');
+        photo.width = Math.max(1, Math.round(frame.width * scale));
+        photo.height = Math.max(1, Math.round(frame.height * scale));
+        const ctx = photo.getContext('2d');
+        if (!ctx) return resolve(null);
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(frame, 0, 0, photo.width, photo.height);
+        resolve(photo);
+      });
+    });
+  }
+
+  /** Lets the scene move again after capture(). */
+  release(): void {
+    this.held = false;
+    this.lastFrame = 0;
+  }
+
+  private settleCaptures(frame: HTMLCanvasElement | null): void {
+    const waiters = this.captureWaiters;
+    this.captureWaiters = [];
+    waiters.forEach((waiter) => waiter(frame));
+  }
+
   clear(): void {
     this.strokes.clear();
     this.blackHoles.clear();
@@ -397,6 +436,7 @@ export class GlowEngine {
     this.disposed = true;
     this.running = false;
     cancelAnimationFrame(this.raf);
+    this.settleCaptures(null);
     const canvas = this.renderer.domElement;
     this.resizeObserver.disconnect();
     canvas.removeEventListener('pointerdown', this.onPointerDown);
@@ -447,6 +487,8 @@ export class GlowEngine {
     this.width = width;
     this.height = height;
     this.applyPixelRatio();
+    // Resizing wipes the canvas, so a held picture has to be drawn again.
+    this.heldDirty = this.held;
 
     const aspect = width / height;
     // Keep a consistent minimum world size, so tubes stay in proportion on a phone.
@@ -600,6 +642,7 @@ export class GlowEngine {
     e.preventDefault();
     this.running = false;
     cancelAnimationFrame(this.raf);
+    this.settleCaptures(null);
   };
 
   private readonly onContextRestored = (): void => {
@@ -875,6 +918,14 @@ export class GlowEngine {
   private readonly tick = (now: number): void => {
     if (!this.running) return;
     this.raf = requestAnimationFrame(this.tick);
+    if (this.held) {
+      this.lastFrame = now;
+      if (this.heldDirty) {
+        this.heldDirty = false;
+        this.composer.render(0);
+      }
+      return;
+    }
     const rawDt = this.lastFrame ? (now - this.lastFrame) / 1000 : 1 / 60;
     this.lastFrame = now;
     const realDt = Math.min(rawDt, 1 / 20);
@@ -935,6 +986,12 @@ export class GlowEngine {
     this.bloom.intensity = (this.settings.reducedEffects ? 0.65 : 0.95) * glow * pulse;
 
     this.composer.render(realDt);
+    if (this.captureWaiters.length) {
+      // Copied right after drawing, while the frame is still in the drawing buffer.
+      this.held = true;
+      this.settleCaptures(this.renderer.domElement);
+      return;
+    }
     this.watchPerformance(rawDt);
   };
 

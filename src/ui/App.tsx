@@ -8,6 +8,7 @@ import { isGateOpen, LaunchGate } from './LaunchGate';
 import { hasOnboarded, Onboarding } from './Onboarding';
 import { SettingsPanel } from './SettingsPanel';
 import { Toolbar } from './Toolbar';
+import { useCloudSaves } from './cloud/useCloudSaves';
 
 const IDLE_MS = 5000;
 
@@ -43,9 +44,13 @@ export function App() {
   // The onboarding has its own large logo, so the corner one waits until it's done.
   const showBrand = onboarded || (!gateOpen && account.status !== 'unknown');
 
+  const cloud = useCloudSaves(engineRef);
+  // Popups and the gallery sit over Glow, so it ignores the pointer and shortcuts meanwhile.
+  const inputOff = locked || cloud.modalOpen;
+
   const coarse = useRef(window.matchMedia('(pointer: coarse)').matches);
-  const latest = useRef({ settings, tool, frozen, mirrorX, mirrorY, locked });
-  latest.current = { settings, tool, frozen, mirrorX, mirrorY, locked };
+  const latest = useRef({ settings, tool, frozen, mirrorX, mirrorY, locked: inputOff });
+  latest.current = { settings, tool, frozen, mirrorX, mirrorY, locked: inputOff };
   const hintId = useRef(0);
 
   const showHint = useCallback((text: string) => {
@@ -80,7 +85,7 @@ export function App() {
   useEffect(() => engineRef.current?.setTool(tool), [tool]);
   useEffect(() => engineRef.current?.setFrozen(frozen), [frozen]);
   useEffect(() => engineRef.current?.setMirror(mirrorX, mirrorY), [mirrorX, mirrorY]);
-  useEffect(() => engineRef.current?.setInputEnabled(!locked), [locked]);
+  useEffect(() => engineRef.current?.setInputEnabled(!inputOff), [inputOff]);
 
   // A first hint that disappears on its own, once the onboarding is out of the way.
   useEffect(() => {
@@ -120,6 +125,7 @@ export function App() {
 
   const triggerChaos = useCallback(() => engineRef.current?.triggerChaos(), []);
   const clear = useCallback(() => engineRef.current?.clear(), []);
+  const { takePhoto, openGallery } = cloud;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -165,6 +171,12 @@ export function App() {
         case 'c':
           clear();
           break;
+        case 'p':
+          void takePhoto();
+          break;
+        case 'g':
+          openGallery();
+          break;
         case 'escape':
           setPanelOpen(false);
           break;
@@ -172,7 +184,7 @@ export function App() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [clear, selectTool, triggerChaos]);
+  }, [clear, selectTool, triggerChaos, takePhoto, openGallery]);
 
   return (
     <div className={`app${idle && !panelOpen ? ' is-idle' : ''}`}>
@@ -204,8 +216,11 @@ export function App() {
           onChaos={triggerChaos}
           onClear={clear}
           onTogglePanel={() => setPanelOpen((v) => !v)}
+          onGallery={openGallery}
+          onCamera={() => void takePhoto()}
         />
       </div>}
+      {!locked && !webglError && cloud.element}
     </div>
   );
 }
