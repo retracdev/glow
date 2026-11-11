@@ -1,10 +1,8 @@
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { getAccountState, subscribeAccount } from '../account/account';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { GlowEngine } from '../engine/GlowEngine';
 import { defaultSettings, type GlowSettings, type Tool } from '../settings';
 import { Brand } from './Brand';
 import { Hint } from './Hint';
-import { isGateOpen, LaunchGate } from './LaunchGate';
 import { hasOnboarded, Onboarding } from './Onboarding';
 import { SettingsPanel } from './SettingsPanel';
 import { Toolbar } from './Toolbar';
@@ -35,14 +33,10 @@ export function App() {
   const [idle, setIdle] = useState(false);
   const [webglError, setWebglError] = useState(false);
   const [hint, setHint] = useState<{ id: number; text: string } | null>(null);
-  const account = useSyncExternalStore(subscribeAccount, getAccountState);
   const [onboarded, setOnboarded] = useState(hasOnboarded);
   const finishOnboarding = useCallback(() => setOnboarded(true), []);
-  const gateOpen = isGateOpen(account);
-  // Glow is hands-off behind the launch gate and during the onboarding.
-  const locked = !gateOpen || !onboarded;
-  // The onboarding has its own large logo, so the corner one waits until it's done.
-  const showBrand = onboarded || (!gateOpen && account.status !== 'unknown');
+  // Glow is hands-off during the onboarding.
+  const locked = !onboarded;
 
   const cloud = useCloudSaves(engineRef);
   // Popups and the gallery sit over Glow, so it ignores the pointer and shortcuts meanwhile.
@@ -195,9 +189,9 @@ export function App() {
           <p>Your browser or device couldn't start it. Try turning on hardware acceleration or using another browser.</p>
         </div>
       )}
-      {!gateOpen && !webglError && <LaunchGate account={account} />}
-      {gateOpen && !onboarded && !webglError && <Onboarding onDone={finishOnboarding} />}
-      {showBrand && <Brand />}
+      {!onboarded && !webglError && <Onboarding onDone={finishOnboarding} />}
+      {/* The onboarding has its own large logo, so the corner one waits until it's done. */}
+      {onboarded && <Brand />}
       {!locked && <div className="dock">
         {hint && <Hint key={hint.id} text={hint.text} />}
         {panelOpen && <SettingsPanel settings={settings} onChange={setSettings} onClose={() => setPanelOpen(false)} />}
