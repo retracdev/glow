@@ -1112,11 +1112,13 @@ body {
 
 /* Laid out at full size from the start so it can be measured; the popup clips it. */
 .onb-warning {
+  /* Everything in the warning is sized off --s, so it scales as one piece. */
+  --s: 1;
   position: absolute;
   top: 50%;
   left: 50%;
-  width: min(430px, calc(100vw - 34px));
-  padding: 30px 28px 22px;
+  width: min(calc(430px * var(--s)), calc(100vw - 34px));
+  padding: calc(30px * var(--s)) calc(28px * var(--s)) calc(22px * var(--s));
   text-align: center;
   opacity: 0;
   transform: translate(-50%, -50%);
@@ -1129,39 +1131,41 @@ body {
 }
 
 .onb-warning-icon {
+  width: calc(44px * var(--s));
+  height: calc(44px * var(--s));
   color: #ffc94d;
   filter: drop-shadow(0 0 14px rgb(255 190 60 / 0.55));
 }
 
 .onb-warning h2 {
-  margin: 12px 0 0;
-  font-size: 21px;
+  margin: calc(12px * var(--s)) 0 0;
+  font-size: calc(21px * var(--s));
   font-weight: 650;
   letter-spacing: -0.02em;
 }
 
 .onb-warning p {
-  margin: 10px 0 0;
+  margin: calc(10px * var(--s)) 0 0;
   color: var(--ink-soft);
-  font-size: 14.5px;
+  font-size: calc(14.5px * var(--s));
   line-height: 1.55;
 }
 
 .onb-actions {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: 22px;
+  gap: calc(6px * var(--s));
+  margin-top: calc(22px * var(--s));
 }
 
 .onb-continue {
-  padding: 13px 16px;
+  padding: calc(13px * var(--s)) calc(16px * var(--s));
   border: 0;
-  border-radius: 14px;
+  border-radius: calc(14px * var(--s));
   background: linear-gradient(135deg, #7b6bff, #c15cff);
   color: #fff;
   font: inherit;
-  font-size: 15px;
+  font-size: calc(15px * var(--s));
   font-weight: 650;
   cursor: pointer;
   touch-action: manipulation;
@@ -1181,18 +1185,36 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 11px 16px;
-  border-radius: 14px;
+  gap: calc(6px * var(--s));
+  padding: calc(11px * var(--s)) calc(16px * var(--s));
+  border-radius: calc(14px * var(--s));
   color: var(--ink-soft);
-  font-size: 14px;
+  font-size: calc(14px * var(--s));
   text-decoration: none;
   transition: background 0.18s, color 0.18s;
+}
+
+.onb-back svg {
+  width: calc(16px * var(--s));
+  height: calc(16px * var(--s));
 }
 
 .onb-back:hover {
   background: var(--hover);
   color: var(--ink);
+}
+
+/* Double size wherever the window has room for it. */
+@media (min-width: 700px) and (min-height: 520px) {
+  .onb-warning {
+    --s: 1.5;
+  }
+}
+
+@media (min-width: 940px) and (min-height: 680px) {
+  .onb-warning {
+    --s: 2;
+  }
 }
 
 @keyframes onb-fade {
