@@ -1112,8 +1112,9 @@ body {
 
 /* Laid out at full size from the start so it can be measured; the popup clips it. */
 .onb-warning {
-  /* --s scales the card only. The text and buttons keep their size, centered inside it. */
+  /* --s scales the card and --t scales the text and buttons centered inside it. */
   --s: 1;
+  --t: 1;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -1137,44 +1138,46 @@ body {
 
 .onb-warning > :not(svg) {
   width: 100%;
-  max-width: 374px;
+  max-width: calc(374px * var(--t));
 }
 
 .onb-warning-icon {
   flex: none;
+  width: calc(44px * var(--t));
+  height: calc(44px * var(--t));
   color: #ffc94d;
   filter: drop-shadow(0 0 14px rgb(255 190 60 / 0.55));
 }
 
 .onb-warning h2 {
-  margin: 12px 0 0;
-  font-size: 21px;
+  margin: calc(12px * var(--t)) 0 0;
+  font-size: calc(21px * var(--t));
   font-weight: 650;
   letter-spacing: -0.02em;
 }
 
 .onb-warning p {
-  margin: 10px 0 0;
+  margin: calc(10px * var(--t)) 0 0;
   color: var(--ink-soft);
-  font-size: 14.5px;
+  font-size: calc(14.5px * var(--t));
   line-height: 1.55;
 }
 
 .onb-actions {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: 22px;
+  gap: calc(6px * var(--t));
+  margin-top: calc(22px * var(--t));
 }
 
 .onb-continue {
-  padding: 13px 16px;
+  padding: calc(13px * var(--t)) calc(16px * var(--t));
   border: 0;
-  border-radius: 14px;
+  border-radius: calc(14px * var(--t));
   background: linear-gradient(135deg, #7b6bff, #c15cff);
   color: #fff;
   font: inherit;
-  font-size: 15px;
+  font-size: calc(15px * var(--t));
   font-weight: 650;
   cursor: pointer;
   touch-action: manipulation;
@@ -1194,18 +1197,18 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 11px 16px;
-  border-radius: 14px;
+  gap: calc(6px * var(--t));
+  padding: calc(11px * var(--t)) calc(16px * var(--t));
+  border-radius: calc(14px * var(--t));
   color: var(--ink-soft);
-  font-size: 14px;
+  font-size: calc(14px * var(--t));
   text-decoration: none;
   transition: background 0.18s, color 0.18s;
 }
 
 .onb-back svg {
-  width: 16px;
-  height: 16px;
+  width: calc(16px * var(--t));
+  height: calc(16px * var(--t));
 }
 
 .onb-back:hover {
@@ -1217,12 +1220,14 @@ body {
 @media (min-width: 700px) and (min-height: 520px) {
   .onb-warning {
     --s: 1.5;
+    --t: 1.25;
   }
 }
 
 @media (min-width: 940px) and (min-height: 680px) {
   .onb-warning {
     --s: 2;
+    --t: 1.25;
   }
 }
 
