@@ -13,7 +13,7 @@ import {
   WifiOff,
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
-import { ACCOUNTS, checkAccount, getAccountState, type AccountState } from '../../account/account';
+import { ACCOUNTS, checkAccount, getAccountState, subscribeAccount, type AccountState } from '../../account/account';
 import { encodePhoto } from '../../cloud/photo';
 import { forgetToken, StorageError, uploadPhoto, type StorageProblem } from '../../cloud/storage';
 import type { GlowEngine } from '../../engine/GlowEngine';
@@ -24,13 +24,16 @@ import { Gallery } from './Gallery';
 const SAVE_LOADER_MS = 1300;
 const ACCOUNT_LOADER_MS = 780;
 
-type Intent = 'save' | 'gallery';
+// 'account' is the popup Glow shows by itself when the account needs action. It isn't on
+// the way to anything, so it just closes once the account is sorted out.
+type Intent = 'save' | 'gallery' | 'account';
 type SignInStatus = 'guest' | 'incomplete' | 'action' | 'error';
 type Failure = StorageProblem | 'capture' | 'encode';
 
 type Popup =
   | { view: 'loading'; label: string }
-  | { view: 'signin'; status: SignInStatus; intent: Intent }
+  // resolving: the visitor opened the page that fixes their account, so coming back checks again.
+  | { view: 'signin'; status: SignInStatus; intent: Intent; resolving?: boolean }
   | { view: 'waiting'; intent: Intent }
   | { view: 'saved' }
   | { view: 'limit'; limit: number | null }
@@ -48,6 +51,7 @@ const ACTION_REASONS: Record<string, string> = {
   inappropriate_username: 'Your username isn’t allowed and needs to be changed.',
   inappropriate_content: 'Some of what you’ve posted on retrac.space needs to be removed.',
   account_suspended: 'Your account is temporarily unavailable.',
+  auth_unlink_google: 'Sign in with Google is no longer available for your account. Set a new password to avoid being locked out.',
 };
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -151,8 +155,19 @@ export function useCloudSaves(engineRef: RefObject<GlowEngine | null>) {
       if (account.status !== 'authenticated') {
         await untilElapsed(start, ACCOUNT_LOADER_MS);
         if (flow.current !== id) return;
+        // Nothing was asked for, so only an account that still needs action is worth a popup.
+        if (intent === 'account' && account.status !== 'action') {
+          closePopup();
+          return;
+        }
         release();
         setPopup({ view: 'signin', status: signInStatus(account), intent });
+        return;
+      }
+      if (intent === 'account') {
+        await untilElapsed(start, ACCOUNT_LOADER_MS);
+        if (flow.current !== id) return;
+        closePopup();
         return;
       }
       if (intent === 'gallery') {
@@ -230,6 +245,13 @@ export function useCloudSaves(engineRef: RefObject<GlowEngine | null>) {
     setPopup({ view: 'waiting', intent });
   }, []);
 
+  // Opens the page that fixes the account in a new tab, and keeps this popup up meanwhile.
+  // Coming back to Glow checks the account again, the same as after signing in.
+  const resolveIssue = useCallback((intent: Intent, url: string) => {
+    window.open(url, '_blank', 'noopener');
+    setPopup({ view: 'signin', status: 'action', intent, resolving: true });
+  }, []);
+
   const verify = useCallback(
     (intent: Intent) => {
       forgetToken();
@@ -238,9 +260,31 @@ export function useCloudSaves(engineRef: RefObject<GlowEngine | null>) {
     [continueSignedIn],
   );
 
+  // An account that needs action is told so once, straight away. After "Continue Signed Out",
+  // the same popup comes back whenever they reach for saving or the gallery.
   useEffect(() => {
-    if (popup?.view !== 'waiting') return;
-    const intent = popup.intent;
+    let prompted = false;
+    const onAccount = (account: AccountState) => {
+      if (account.status !== 'action') {
+        // A failed check doesn't mean the issue was sorted out.
+        if (account.status !== 'error') prompted = false;
+        return;
+      }
+      if (prompted) return;
+      prompted = true;
+      if (popupRef.current) return;
+      setPopup({ view: 'signin', status: 'action', intent: 'account' });
+    };
+    onAccount(getAccountState());
+    return subscribeAccount(onAccount);
+  }, []);
+
+  const watchIntent =
+    popup?.view === 'waiting' ? popup.intent : popup?.view === 'signin' && popup.resolving ? popup.intent : null;
+
+  useEffect(() => {
+    if (watchIntent === null) return;
+    const intent = watchIntent;
     let away = document.hidden || !document.hasFocus();
     let timer = 0;
     const leave = () => {
@@ -266,7 +310,7 @@ export function useCloudSaves(engineRef: RefObject<GlowEngine | null>) {
       window.removeEventListener('blur', leave);
       window.removeEventListener('focus', back);
     };
-  }, [popup, verify]);
+  }, [watchIntent, verify]);
 
   const content = popup && popup.view !== 'loading' ? describe(popup) : null;
 
@@ -335,10 +379,10 @@ export function useCloudSaves(engineRef: RefObject<GlowEngine | null>) {
         key,
         icon: ShieldAlert,
         tone: 'warning',
-        title: 'Your account needs attention',
-        text: `${reason ? `${reason} ` : ''}Saving photos and your gallery are off until it’s sorted out.`,
-        primary: { label: 'Resolve issue', onClick: () => openAccounts(intent, url) },
-        secondary: notNow,
+        title: 'Action is required on your account',
+        text: `${reason ? `${reason} ` : ''}You can keep making light art, but saving photos and your gallery are off until it’s resolved.`,
+        primary: { label: 'Resolve Issue', onClick: () => resolveIssue(intent, url) },
+        secondary: { label: 'Continue Signed Out', onClick: closePopup },
       };
     }
     if (status === 'error') {
