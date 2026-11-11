@@ -19,23 +19,31 @@ function Strokes({ className }: { className: string }) {
   );
 }
 
+// The neon wordmark. It draws itself in when it mounts. Only one should be on screen at a
+// time, since they share a gradient id.
+export function GlowMark({ className = '' }: { className?: string }) {
+  return (
+    <svg className={`brand-mark ${className}`.trim()} viewBox="1 0 105 40" role="img" aria-label="Glow">
+      <defs>
+        <linearGradient id="glow-mark-grad" x1="0" y1="0" x2="1" y2="0.4">
+          <stop offset="0" stopColor="#ff4fd8" />
+          <stop offset="0.35" stopColor="#7b6bff" />
+          <stop offset="0.7" stopColor="#2ee6ff" />
+          <stop offset="1" stopColor="#5dff9b" />
+        </linearGradient>
+      </defs>
+      <Strokes className="brand-mark-halo" />
+      <Strokes className="brand-mark-tube" />
+      <Strokes className="brand-mark-core" />
+    </svg>
+  );
+}
+
 export function Brand() {
   return (
     <header className="brand">
       <h1 className="brand-name">
-        <svg className="brand-mark" viewBox="1 0 105 40" role="img" aria-label="Glow">
-          <defs>
-            <linearGradient id="glow-mark-grad" x1="0" y1="0" x2="1" y2="0.4">
-              <stop offset="0" stopColor="#ff4fd8" />
-              <stop offset="0.35" stopColor="#7b6bff" />
-              <stop offset="0.7" stopColor="#2ee6ff" />
-              <stop offset="1" stopColor="#5dff9b" />
-            </linearGradient>
-          </defs>
-          <Strokes className="brand-mark-halo" />
-          <Strokes className="brand-mark-tube" />
-          <Strokes className="brand-mark-core" />
-        </svg>
+        <GlowMark />
       </h1>
       <span className="brand-sep" aria-hidden="true" />
       <a className="brand-link" href="https://retrac.space" target="_blank" rel="noreferrer">

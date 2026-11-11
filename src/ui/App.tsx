@@ -5,6 +5,7 @@ import { defaultSettings, type GlowSettings, type Tool } from '../settings';
 import { Brand } from './Brand';
 import { Hint } from './Hint';
 import { isGateOpen, LaunchGate } from './LaunchGate';
+import { hasOnboarded, Onboarding } from './Onboarding';
 import { SettingsPanel } from './SettingsPanel';
 import { Toolbar } from './Toolbar';
 
@@ -34,7 +35,13 @@ export function App() {
   const [webglError, setWebglError] = useState(false);
   const [hint, setHint] = useState<{ id: number; text: string } | null>(null);
   const account = useSyncExternalStore(subscribeAccount, getAccountState);
-  const locked = !isGateOpen(account);
+  const [onboarded, setOnboarded] = useState(hasOnboarded);
+  const finishOnboarding = useCallback(() => setOnboarded(true), []);
+  const gateOpen = isGateOpen(account);
+  // Glow is hands-off behind the launch gate and during the onboarding.
+  const locked = !gateOpen || !onboarded;
+  // The onboarding has its own large logo, so the corner one waits until it's done.
+  const showBrand = onboarded || (!gateOpen && account.status !== 'unknown');
 
   const coarse = useRef(window.matchMedia('(pointer: coarse)').matches);
   const latest = useRef({ settings, tool, frozen, mirrorX, mirrorY, locked });
@@ -75,7 +82,7 @@ export function App() {
   useEffect(() => engineRef.current?.setMirror(mirrorX, mirrorY), [mirrorX, mirrorY]);
   useEffect(() => engineRef.current?.setInputEnabled(!locked), [locked]);
 
-  // A first hint that disappears on its own. There is no onboarding screen.
+  // A first hint that disappears on its own, once the onboarding is out of the way.
   useEffect(() => {
     if (locked) return;
     const text = coarse.current ? 'Drag to steer the tubes' : 'Move to steer. Drag to draw.';
@@ -176,8 +183,9 @@ export function App() {
           <p>Your browser or device couldn't start it. Try turning on hardware acceleration or using another browser.</p>
         </div>
       )}
-      {locked && !webglError && <LaunchGate account={account} />}
-      <Brand />
+      {!gateOpen && !webglError && <LaunchGate account={account} />}
+      {gateOpen && !onboarded && !webglError && <Onboarding onDone={finishOnboarding} />}
+      {showBrand && <Brand />}
       {!locked && <div className="dock">
         {hint && <Hint key={hint.id} text={hint.text} />}
         {panelOpen && <SettingsPanel settings={settings} onChange={setSettings} onClose={() => setPanelOpen(false)} />}
