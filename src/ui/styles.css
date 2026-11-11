@@ -846,3 +846,389 @@ body {
     transform: translateY(10px);
   }
 }
+
+/* ---------- Onboarding (first visit) ---------- */
+@property --onb-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+/* Same blurred backdrop as the launch gate, with the tubes drifting on their own behind. */
+.onboarding {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(8 7 16 / 0.35);
+  -webkit-backdrop-filter: blur(26px) saturate(1.25);
+  backdrop-filter: blur(26px) saturate(1.25);
+  touch-action: none;
+  user-select: none;
+  transition: opacity 0.55s ease;
+}
+
+.onboarding.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.onb-hero {
+  position: relative;
+  width: min(480px, 100%);
+  padding-top: 112px;
+  text-align: center;
+  transition: opacity 0.4s ease, transform 0.6s var(--ease);
+}
+
+.is-loading .onb-hero,
+.is-warning .onb-hero,
+.is-leaving .onb-hero {
+  opacity: 0.25;
+  transform: scale(0.97);
+}
+
+/* The logo opens large in the middle, then shrinks and rises to sit above the welcome. */
+.brand-mark.onb-mark {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 190px;
+  height: 72px;
+  transform: translate(-50%, 0) scale(1);
+  transition: top 0.9s var(--ease), transform 0.9s var(--ease);
+}
+
+.is-intro .brand-mark.onb-mark {
+  top: 50%;
+  transform: translate(-50%, -50%) scale(1.5);
+}
+
+.onb-copy > * {
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+
+.onb-copy > :nth-child(1) {
+  transition-delay: 0.2s;
+}
+
+.onb-copy > :nth-child(2) {
+  transition-delay: 0.3s;
+}
+
+.onb-copy > :nth-child(3) {
+  transition-delay: 0.42s;
+}
+
+.is-intro .onb-copy {
+  pointer-events: none;
+}
+
+.is-intro .onb-copy > * {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: none;
+}
+
+.onb-copy h1 {
+  margin: 0;
+  font-size: clamp(30px, 7vw, 46px);
+  font-weight: 650;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  text-shadow: 0 0 34px rgb(185 178 255 / 0.55);
+}
+
+.onb-copy p {
+  max-width: 400px;
+  margin: 14px auto 0;
+  color: var(--ink-soft);
+  font-size: 15.5px;
+  line-height: 1.55;
+}
+
+/* Start: a dark pill with a rotating neon rim, a soft halo, and a passing sheen. */
+.onb-start {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 34px;
+  padding: 15px 34px 15px 40px;
+  border: 0;
+  border-radius: 99px;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.onb-start::before,
+.onb-start::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  z-index: -2;
+  border-radius: inherit;
+  background: conic-gradient(from var(--onb-angle), #ff4fd8, #7b6bff, #2ee6ff, #5dff9b, #ff4fd8);
+  animation: onb-rim 3.2s linear infinite;
+}
+
+.onb-start::after {
+  inset: -4px;
+  filter: blur(18px);
+  opacity: 0.6;
+  transition: opacity 0.3s, inset 0.3s var(--ease);
+}
+
+.onb-start-face {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  border-radius: inherit;
+  background: #0d0b18;
+  transition: background 0.3s;
+}
+
+.onb-start-face::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -60%;
+  width: 45%;
+  background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.2), transparent);
+  animation: onb-sheen 3s ease-in-out infinite;
+}
+
+.onb-start svg {
+  transition: transform 0.3s var(--ease);
+}
+
+.onb-start:hover,
+.onb-start:focus-visible {
+  transform: scale(1.05);
+}
+
+.onb-start:hover::after,
+.onb-start:focus-visible::after {
+  inset: -8px;
+  opacity: 0.95;
+}
+
+.onb-start:hover .onb-start-face,
+.onb-start:focus-visible .onb-start-face {
+  background: #171331;
+}
+
+.onb-start:hover svg,
+.onb-start:focus-visible svg {
+  transform: translateX(4px);
+}
+
+.onb-start:active {
+  transform: scale(0.97);
+}
+
+.onb-start:focus-visible,
+.onb-continue:focus-visible,
+.onb-back:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+.onb-start:disabled {
+  cursor: default;
+}
+
+@keyframes onb-rim {
+  to {
+    --onb-angle: 360deg;
+  }
+}
+
+@keyframes onb-sheen {
+  0%,
+  55% {
+    left: -60%;
+  }
+  100% {
+    left: 130%;
+  }
+}
+
+/* The popup opens as a small spinner, then grows in place into the warning. */
+.onb-scrim {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgb(5 4 10 / 0.5);
+  animation: onb-fade 0.25s ease both;
+}
+
+.onb-popup {
+  position: relative;
+  box-sizing: content-box;
+  width: 84px;
+  height: 84px;
+  max-height: calc(100dvh - 34px);
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 26px;
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  backdrop-filter: blur(22px) saturate(1.4);
+  box-shadow: 0 24px 70px rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.06);
+  outline: none;
+  transition: width 0.6s var(--ease), height 0.6s var(--ease);
+  animation: onb-pop 0.35s var(--ease) both;
+}
+
+.onb-spinner {
+  position: absolute;
+  inset: 0;
+  width: 30px;
+  height: 30px;
+  margin: auto;
+  border: 3px solid var(--line-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: onb-spin 0.8s linear infinite;
+  transition: opacity 0.2s;
+}
+
+.onb-popup.is-expanded .onb-spinner {
+  opacity: 0;
+}
+
+/* Laid out at full size from the start so it can be measured; the popup clips it. */
+.onb-warning {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(430px, calc(100vw - 34px));
+  padding: 30px 28px 22px;
+  text-align: center;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.2s;
+}
+
+.onb-popup.is-expanded .onb-warning {
+  opacity: 1;
+  transition: opacity 0.4s ease 0.2s;
+}
+
+.onb-warning-icon {
+  color: #ffc94d;
+  filter: drop-shadow(0 0 14px rgb(255 190 60 / 0.55));
+}
+
+.onb-warning h2 {
+  margin: 12px 0 0;
+  font-size: 21px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.onb-warning p {
+  margin: 10px 0 0;
+  color: var(--ink-soft);
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+.onb-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 22px;
+}
+
+.onb-continue {
+  padding: 13px 16px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #7b6bff, #c15cff);
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 650;
+  cursor: pointer;
+  touch-action: manipulation;
+  box-shadow: 0 6px 24px rgb(140 100 255 / 0.4);
+  transition: filter 0.2s, transform 0.2s var(--ease);
+}
+
+.onb-continue:hover {
+  filter: brightness(1.12);
+}
+
+.onb-continue:active {
+  transform: scale(0.98);
+}
+
+.onb-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 16px;
+  border-radius: 14px;
+  color: var(--ink-soft);
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.18s, color 0.18s;
+}
+
+.onb-back:hover {
+  background: var(--hover);
+  color: var(--ink);
+}
+
+@keyframes onb-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes onb-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes onb-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 420px) {
+  .is-intro .brand-mark.onb-mark {
+    transform: translate(-50%, -50%) scale(1.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Looping decoration stops; the spinner keeps turning so the wait still reads as one. */
+  .onb-start::before,
+  .onb-start::after,
+  .onb-start-face::after {
+    animation: none;
+  }
+
+  .onb-spinner {
+    animation-duration: 0.8s !important;
+  }
+}
