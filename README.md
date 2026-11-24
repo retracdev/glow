@@ -3,7 +3,7 @@
     width="150"
     height="150"
     alt="simple-soundboard-logo"
-    src="[https://github.com/user-attachments/assets/c0148050-f61c-4aa1-bf35-df09eeded5d1](https://github.com/user-attachments/assets/7aede672-64e0-49ed-b212-c649b3c7e2ef)"
+    src="https://github.com/user-attachments/assets/7aede672-64e0-49ed-b212-c649b3c7e2ef"
   />
 </div>
 # Glow
