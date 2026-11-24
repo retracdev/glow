@@ -11,7 +11,7 @@
 A creative light art tool by [retrac.space](https://retrac.space), live at [glowstudio.retrac.space](https://glowstudio.retrac.space/). Create glowing drawings, experiment with light, explore symmetry, and design colorful particle effects.
 
 <p align="center">
-  <img width="250" alt="Simple Soundboard Glow Banner" src="https://github.com/user-attachments/assets/94680a84-3a68-4326-998e-6ddb87ef3f50" />
+  <img width="400" alt="Simple Soundboard Glow Banner" src="https://github.com/user-attachments/assets/94680a84-3a68-4326-998e-6ddb87ef3f50" />
 </p>
 
 
