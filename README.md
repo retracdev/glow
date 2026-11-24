@@ -2,24 +2,16 @@
   <img
     width="150"
     height="150"
-    alt="simple-soundboard-logo"
+    alt="glow-logo"
     src="https://github.com/user-attachments/assets/7aede672-64e0-49ed-b212-c649b3c7e2ef"
   />
 </div>
 # Glow
 
-A creative light art tool by [retrac.space](https://retrac.space), live at [glowstudio.retrac.space](https://glowstudio.retrac.space/). Create glowing drawings, experiment with light, explore symmetry, and design colorful particle effects. Glow is a creative art tool, not a video game. It has no scores, levels, or competitive gameplay. It runs entirely in the browser with no backend.
+A creative light art tool by [retrac.space](https://retrac.space), live at [glowstudio.retrac.space](https://glowstudio.retrac.space/). Create glowing drawings, experiment with light, explore symmetry, and design colorful particle effects.
 
-## Run it
+<img width="6912" height="3456" alt="Simple Soundboard Glow Banner" src="https://github.com/user-attachments/assets/94680a84-3a68-4326-998e-6ddb87ef3f50" />
 
-```sh
-npm install
-npm run dev       # development server
-npm run build     # typecheck and production build, output in dist/
-npm run preview   # serve the production build
-```
-
-Needs a browser with WebGL 2.
 
 ## Controls
 
@@ -36,20 +28,7 @@ Needs a browser with WebGL 2.
 
 Colors, glow, tube count, speed, trail length, background and reduced effects are in the settings panel. Reduced effects starts on when the system asks for reduced motion.
 
-## How it works
 
-Rendering is separate from the UI: `src/ui` is React, `src/engine` is plain TypeScript and Three.js, and React only talks to `GlowEngine` through its small public API. Nothing in the frame loop touches React.
-
-- **Tubes** (`FreeTubes.ts`, `TubeMesh.ts`). Each head chases an anchor on an underdamped spring and drops samples behind it. Samples keep some momentum and drift through a divergence-free flow, so trails bend and curl by themselves. Control points go into a float texture, and one instanced mesh builds every tube in the vertex shader with Catmull-Rom interpolation and parallel-transported frames.
-- **Strokes** (`Strokes.ts`). Dragging lays down a braid of three strands that use the same texture and mesh. They spring back to where they were drawn after being disturbed.
-- **Black holes** (`BlackHoles.ts`, `LensEffect.ts`, `ForceField.ts`). Gravity and swirl act on every tube point. The visual is a screen-space lens pass that runs before bloom, so warped light still glows, plus an accretion disk mesh that the lens bends into a halo.
-- **Particle bursts** (`Particles.ts`). Sparks move analytically in the vertex shader, so the CPU only touches a particle when it spawns. Bursts also kick nearby tube points and send out a lens shockwave.
-- **Mirror**. The whole scene is redrawn reflected, including holes and bursts, and each force is applied for every reflection. That keeps the symmetry exact.
-- **Post-processing**. HDR buffer, mipmap bloom, tone mapping, vignette and dithering, using [postprocessing](https://github.com/pmndrs/postprocessing).
-- **Performance**. No allocations per point in the simulation, lower geometry and particle budgets on small devices, and render resolution steps down automatically if a device can't keep up.
-
-The look was inspired by Kevin Levron's Tubes Cursor component. This is an independent implementation and shares no code with it.
-
-## License
-
-MIT
+## How much is Glow?
+Glow is completely free and open source! However, some features like the gallery require a retrac.space account. retrac.space accounts are also free to sign up for.
+Glow is free because it is just a personal side-project, not a monetized app.
