@@ -1,3 +1,11 @@
+<div align="center">
+  <img
+    width="150"
+    height="150"
+    alt="simple-soundboard-logo"
+    src="[https://github.com/user-attachments/assets/c0148050-f61c-4aa1-bf35-df09eeded5d1](https://github.com/user-attachments/assets/7aede672-64e0-49ed-b212-c649b3c7e2ef)"
+  />
+</div>
 # Glow
 
 A creative light art tool by [retrac.space](https://retrac.space), live at [glowstudio.retrac.space](https://glowstudio.retrac.space/). Create glowing drawings, experiment with light, explore symmetry, and design colorful particle effects. Glow is a creative art tool, not a video game. It has no scores, levels, or competitive gameplay. It runs entirely in the browser with no backend.
