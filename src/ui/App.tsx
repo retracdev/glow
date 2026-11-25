@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { GlowEngine } from '../engine/GlowEngine';
+import { holdUpdates, splashAppReady, splashDone, whenSplashDone } from '../runtime';
 import { defaultSettings, type GlowSettings, type Tool } from '../settings';
 import { Brand } from './Brand';
 import { Hint } from './Hint';
@@ -33,6 +34,10 @@ export function App() {
   const [idle, setIdle] = useState(false);
   const [webglError, setWebglError] = useState(false);
   const [hint, setHint] = useState<{ id: number; text: string } | null>(null);
+  // The onboarding and the first hint wait for the loading screen to go.
+  const [splashOver, setSplashOver] = useState(splashDone);
+  // Something has been drawn or placed since the last clear. A live update would wipe it.
+  const hasArt = useRef(false);
   const [onboarded, setOnboarded] = useState(hasOnboarded);
   const finishOnboarding = useCallback(() => setOnboarded(true), []);
   // Glow is hands-off during the onboarding.
@@ -52,6 +57,12 @@ export function App() {
     setHint({ id: hintId.current, text });
   }, []);
 
+  useEffect(() => whenSplashDone(() => setSplashOver(true)), []);
+
+  // Automatic updates wait while there's art on the canvas, the onboarding is up or a popup
+  // is open, so they never wipe someone's work.
+  useEffect(() => holdUpdates(() => hasArt.current || latest.current.locked), []);
+
   // The engine lives outside React state. Effects below push changes to it.
   useEffect(() => {
     const stage = stageRef.current;
@@ -62,14 +73,21 @@ export function App() {
     } catch (error) {
       console.error('Glow could not start WebGL', error);
       setWebglError(true);
+      splashAppReady();
       return;
     }
+    splashAppReady();
     engineRef.current = engine;
     engine.setTool(latest.current.tool);
     engine.setFrozen(latest.current.frozen);
     engine.setMirror(latest.current.mirrorX, latest.current.mirrorY);
     engine.setInputEnabled(!latest.current.locked);
+    const markArt = () => {
+      if (!latest.current.locked) hasArt.current = true;
+    };
+    stage.addEventListener('pointerdown', markArt);
     return () => {
+      stage.removeEventListener('pointerdown', markArt);
       engine.dispose();
       engineRef.current = null;
     };
@@ -83,11 +101,11 @@ export function App() {
 
   // A first hint that disappears on its own, once the onboarding is out of the way.
   useEffect(() => {
-    if (locked) return;
+    if (locked || !splashOver) return;
     const text = coarse.current ? 'Drag to steer the tubes' : 'Move to steer. Drag to draw.';
     const timer = window.setTimeout(() => showHint(text), 900);
     return () => window.clearTimeout(timer);
-  }, [showHint, locked]);
+  }, [showHint, locked, splashOver]);
 
   // Controls recede when you're just watching or playing.
   useEffect(() => {
@@ -118,7 +136,10 @@ export function App() {
   );
 
   const triggerChaos = useCallback(() => engineRef.current?.triggerChaos(), []);
-  const clear = useCallback(() => engineRef.current?.clear(), []);
+  const clear = useCallback(() => {
+    engineRef.current?.clear();
+    hasArt.current = false;
+  }, []);
   const { takePhoto, openGallery } = cloud;
 
   useEffect(() => {
@@ -189,7 +210,7 @@ export function App() {
           <p>Your browser or device couldn't start it. Try turning on hardware acceleration or using another browser.</p>
         </div>
       )}
-      {!onboarded && !webglError && <Onboarding onDone={finishOnboarding} />}
+      {!onboarded && !webglError && splashOver && <Onboarding onDone={finishOnboarding} />}
       {/* The onboarding has its own large logo, so the corner one waits until it's done. */}
       {onboarded && <Brand />}
       {!locked && <div className="dock">

@@ -2,6 +2,7 @@
  * Greets someone signed in to their retrac.space account, using the same pill as
  * Simple Soundboard. Guests, and any failed check, just see nothing.
  */
+import { restartedByUpdate, whenSplashDone } from '../runtime';
 import { checkAccount, getAccountState, subscribeAccount, type AccountState } from './account';
 
 const greetings = [
@@ -53,8 +54,14 @@ function greet(state: AccountState) {
   showWelcomePill(state.username);
 }
 
+// The greeting waits for the loading screen, and is skipped when a live update restarted
+// Glow (that shows its own toast). The account check itself starts right away either way.
 export function startAccountWelcome() {
-  subscribeAccount(greet);
-  greet(getAccountState());
+  if (!restartedByUpdate()) {
+    whenSplashDone(() => {
+      subscribeAccount(greet);
+      greet(getAccountState());
+    });
+  }
   void checkAccount();
 }
