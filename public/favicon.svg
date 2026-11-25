@@ -1,1 +1,96 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2.35 -0.53 40 40"><defs><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="4" y1="6" x2="30" y2="33"><stop offset="0" stop-color="#ff4fd8"/><stop offset=".35" stop-color="#7b6bff"/><stop offset=".7" stop-color="#2ee6ff"/><stop offset="1" stop-color="#5dff9b"/></linearGradient></defs><rect x="-2.35" y="-0.53" width="40" height="40" rx="10" fill="#05040a"/><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M27 11C23 6 12 6 9 15C6 25 13 33 21 31C25 30 27 27 27 23V22H19" stroke="url(#g)" stroke-width="7"/><path d="M27 11C23 6 12 6 9 15C6 25 13 33 21 31C25 30 27 27 27 23V22H19" stroke="#fff" stroke-width="2.4" opacity=".85"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="gc-tile" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="64">
+      <stop offset="0" stop-color="#8EF0FF"/><stop offset=".5" stop-color="#33C3F5"/><stop offset="1" stop-color="#1774E4"/>
+    </linearGradient>
+    <linearGradient id="gc-tilerim" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="64">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.7"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0.3"/>
+    </linearGradient>
+    <linearGradient id="gc-glass" gradientUnits="userSpaceOnUse" x1="0" y1="11" x2="0" y2="52">
+      <stop offset="0" stop-color="#fff" stop-opacity=".92"/><stop offset="1" stop-color="#C9EEFF" stop-opacity=".72"/>
+    </linearGradient>
+    <linearGradient id="gc-glassrim" gradientUnits="userSpaceOnUse" x1="0" y1="11" x2="0" y2="52">
+      <stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset=".5" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity=".7"/>
+    </linearGradient>
+    <linearGradient id="gc-hl" gradientUnits="userSpaceOnUse" x1="10" y1="10" x2="30" y2="30">
+      <stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset=".4" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    
+    <radialGradient id="gc-dab0" gradientUnits="userSpaceOnUse" cx="18.1" cy="23.4" r="6.449999999999999">
+      <stop offset="0" stop-color="#FF6B6B"/><stop offset="1" stop-color="#E2262E"/>
+    </radialGradient>
+    <radialGradient id="gc-dab1" gradientUnits="userSpaceOnUse" cx="29.1" cy="16.9" r="6.1499999999999995">
+      <stop offset="0" stop-color="#FFE15A"/><stop offset="1" stop-color="#F5B800"/>
+    </radialGradient>
+    <radialGradient id="gc-dab2" gradientUnits="userSpaceOnUse" cx="16.1" cy="35.4" r="6.1499999999999995">
+      <stop offset="0" stop-color="#FFB04A"/><stop offset="1" stop-color="#F26A0F"/>
+    </radialGradient>
+    <linearGradient id="gc-brush" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="35" y2="0">
+      <stop offset="0" stop-color="#2F8CFF"/><stop offset="1" stop-color="#1238B8"/>
+    </linearGradient>
+    <linearGradient id="gc-brushhl" gradientUnits="userSpaceOnUse" x1="0" y1="-3" x2="35" y2="3">
+      <stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset=".4" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="gc-blur2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2"/></filter>
+    <filter id="gc-blur1" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.1"/></filter>
+    <clipPath id="gc-tileclip"><rect width="64" height="64" rx="14.5"/></clipPath>
+    <clipPath id="gc-palclip"><path d="M31 11.5C44.5 11.5 54.5 19.5 54.5 29.5C54.5 35.5 50.8 37.8 47 37C43.6 36.3 41.2 38.4 42.2 41.8C43.4 46.2 40.6 51.5 31.5 51.5C18.5 51.5 9.5 43 9.5 31C9.5 19.5 18.5 11.5 31 11.5ZM33.5 44a3 3 0 1 0 6 0a3 3 0 1 0 -6 0Z" fill-rule="evenodd" clip-rule="evenodd"/></clipPath>
+    <mask id="gc-outpal" maskUnits="userSpaceOnUse" x="0" y="0">
+      <rect width="64" height="64" fill="#fff"/><path d="M31 11.5C44.5 11.5 54.5 19.5 54.5 29.5C54.5 35.5 50.8 37.8 47 37C43.6 36.3 41.2 38.4 42.2 41.8C43.4 46.2 40.6 51.5 31.5 51.5C18.5 51.5 9.5 43 9.5 31C9.5 19.5 18.5 11.5 31 11.5ZM33.5 44a3 3 0 1 0 6 0a3 3 0 1 0 -6 0Z" fill-rule="evenodd" fill="#000"/>
+    </mask>
+    <mask id="gc-outbrush" maskUnits="userSpaceOnUse" x="0" y="0">
+      <rect width="64" height="64" fill="#fff"/>
+      <path d="M0 0C1.8 -1.6 4.6 -2.9 8.2 -2.9H12.6L14 -2.3L33.2 -1.35C34.6 -1.25 35.4 -0.7 35.4 0C35.4 0.7 34.6 1.25 33.2 1.35L14 2.3L12.6 2.9H8.2C4.6 2.9 1.8 1.6 0 0Z" transform="translate(27.5 40.5) rotate(-45)" fill="#000" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/>
+    </mask>
+  </defs>
+
+  <!-- 1. tile -->
+  <rect width="64" height="64" rx="14.5" fill="url(#gc-tile)"/>
+  
+  <rect x=".6" y=".6" width="62.8" height="62.8" rx="13.9" fill="none" stroke="url(#gc-tilerim)" stroke-width="1.2"/>
+
+  <g clip-path="url(#gc-tileclip)">
+    <!-- 2. palette shadow (outside the palette) + brush shadow onto the tile -->
+    <g mask="url(#gc-outpal)">
+      <path d="M31 11.5C44.5 11.5 54.5 19.5 54.5 29.5C54.5 35.5 50.8 37.8 47 37C43.6 36.3 41.2 38.4 42.2 41.8C43.4 46.2 40.6 51.5 31.5 51.5C18.5 51.5 9.5 43 9.5 31C9.5 19.5 18.5 11.5 31 11.5ZM33.5 44a3 3 0 1 0 6 0a3 3 0 1 0 -6 0Z" fill-rule="evenodd" transform="translate(0 2.5)" fill="#0A3E8C" opacity=".32" filter="url(#gc-blur2)"/>
+      <g mask="url(#gc-outbrush)">
+        <path d="M0 0C1.8 -1.6 4.6 -2.9 8.2 -2.9H12.6L14 -2.3L33.2 -1.35C34.6 -1.25 35.4 -0.7 35.4 0C35.4 0.7 34.6 1.25 33.2 1.35L14 2.3L12.6 2.9H8.2C4.6 2.9 1.8 1.6 0 0Z" transform="translate(0 1.5) translate(27.5 40.5) rotate(-45)" fill="#0A3E8C" opacity=".3" filter="url(#gc-blur1)"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- 3. palette: frosted white glass -->
+  <path d="M31 11.5C44.5 11.5 54.5 19.5 54.5 29.5C54.5 35.5 50.8 37.8 47 37C43.6 36.3 41.2 38.4 42.2 41.8C43.4 46.2 40.6 51.5 31.5 51.5C18.5 51.5 9.5 43 9.5 31C9.5 19.5 18.5 11.5 31 11.5ZM33.5 44a3 3 0 1 0 6 0a3 3 0 1 0 -6 0Z" fill-rule="evenodd" fill="url(#gc-glass)"/>
+  <g clip-path="url(#gc-palclip)">
+    <path d="M31 11.5C44.5 11.5 54.5 19.5 54.5 29.5C54.5 35.5 50.8 37.8 47 37C43.6 36.3 41.2 38.4 42.2 41.8C43.4 46.2 40.6 51.5 31.5 51.5C18.5 51.5 9.5 43 9.5 31C9.5 19.5 18.5 11.5 31 11.5ZM33.5 44a3 3 0 1 0 6 0a3 3 0 1 0 -6 0Z" fill-rule="evenodd" fill="none" stroke="url(#gc-glassrim)" stroke-width="2"/>
+  </g>
+  
+
+  <!-- paint dabs -->
+  
+    <circle cx="19.5" cy="25" r="4.3" fill="url(#gc-dab0)" fill-opacity=".95"/>
+    <circle cx="19.5" cy="25" r="3.9499999999999997" fill="none" stroke="url(#gc-hl)" stroke-width=".6"
+      transform="rotate(0 19.5 25)" opacity=".9"/>
+    <circle cx="30.5" cy="18.5" r="4.1" fill="url(#gc-dab1)" fill-opacity=".95"/>
+    <circle cx="30.5" cy="18.5" r="3.7499999999999996" fill="none" stroke="url(#gc-hl)" stroke-width=".6"
+      transform="rotate(0 30.5 18.5)" opacity=".9"/>
+    <circle cx="17.5" cy="37" r="4.1" fill="url(#gc-dab2)" fill-opacity=".95"/>
+    <circle cx="17.5" cy="37" r="3.7499999999999996" fill="none" stroke="url(#gc-hl)" stroke-width=".6"
+      transform="rotate(0 17.5 37)" opacity=".9"/>
+
+  <!-- 4. brush shadow, inside the palette only -->
+  <g clip-path="url(#gc-palclip)">
+    <g mask="url(#gc-outbrush)">
+      <path d="M0 0C1.8 -1.6 4.6 -2.9 8.2 -2.9H12.6L14 -2.3L33.2 -1.35C34.6 -1.25 35.4 -0.7 35.4 0C35.4 0.7 34.6 1.25 33.2 1.35L14 2.3L12.6 2.9H8.2C4.6 2.9 1.8 1.6 0 0Z" transform="translate(0 1.5) translate(27.5 40.5) rotate(-45)" fill="#0A3E8C" opacity=".35" filter="url(#gc-blur1)"/>
+    </g>
+  </g>
+
+  <!-- 5. brush: coloured glass -->
+  <g transform="translate(27.5 40.5) rotate(-45)">
+    <path d="M0 0C1.8 -1.6 4.6 -2.9 8.2 -2.9H12.6L14 -2.3L33.2 -1.35C34.6 -1.25 35.4 -0.7 35.4 0C35.4 0.7 34.6 1.25 33.2 1.35L14 2.3L12.6 2.9H8.2C4.6 2.9 1.8 1.6 0 0Z" fill="url(#gc-brush)" fill-opacity=".94" stroke="url(#gc-brush)" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M8.2 -2.9V2.9M12.6 -2.9V2.9" stroke="#fff" stroke-opacity=".38" stroke-width=".6"/>
+    <path d="M0 0C1.8 -1.6 4.6 -2.9 8.2 -2.9H12.6L14 -2.3L33.2 -1.35C34.6 -1.25 35.4 -0.7 35.4 0C35.4 0.7 34.6 1.25 33.2 1.35L14 2.3L12.6 2.9H8.2C4.6 2.9 1.8 1.6 0 0Z" fill="none" stroke="url(#gc-brushhl)" stroke-width=".7" transform="translate(0 -.5) scale(1 1.2)"/>
+  </g>
+</svg>

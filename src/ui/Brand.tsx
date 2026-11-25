@@ -19,17 +19,38 @@ function Strokes({ className }: { className: string }) {
   );
 }
 
-// The neon wordmark. It draws itself in when it mounts. Only one should be on screen at a
-// time, since they share a gradient id.
+const reducedMotion =
+  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+// The neon wordmark, in the cyan-to-blue glass of the app icon. It draws itself in when it
+// mounts, then light slowly slides along it. Only one should be on screen at a time, since
+// they share a gradient id.
 export function GlowMark({ className = '' }: { className?: string }) {
   return (
     <svg className={`brand-mark ${className}`.trim()} viewBox="1 0 105 40" role="img" aria-label="Glow">
       <defs>
-        <linearGradient id="glow-mark-grad" x1="0" y1="0" x2="1" y2="0.4">
-          <stop offset="0" stopColor="#ff4fd8" />
-          <stop offset="0.35" stopColor="#7b6bff" />
-          <stop offset="0.7" stopColor="#2ee6ff" />
-          <stop offset="1" stopColor="#5dff9b" />
+        <linearGradient
+          id="glow-mark-grad"
+          gradientUnits="userSpaceOnUse"
+          x1="4"
+          y1="4"
+          x2="104"
+          y2="36"
+          spreadMethod="reflect"
+        >
+          <stop offset="0" stopColor="#8ef0ff" />
+          <stop offset="0.35" stopColor="#33c3f5" />
+          <stop offset="0.7" stopColor="#2f8cff" />
+          <stop offset="1" stopColor="#5b7cff" />
+          {!reducedMotion && (
+            <animateTransform
+              attributeName="gradientTransform"
+              type="translate"
+              values="0 0; 100 32; 0 0"
+              dur="6s"
+              repeatCount="indefinite"
+            />
+          )}
         </linearGradient>
       </defs>
       <Strokes className="brand-mark-halo" />
