@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { GlowEngine } from '../engine/GlowEngine';
-import { holdUpdates, splashAppReady, splashDone, whenSplashDone } from '../runtime';
+import { splashAppReady, splashDone, whenSplashDone } from '../runtime';
 import { defaultSettings, type GlowSettings, type Tool } from '../settings';
 import { Brand } from './Brand';
 import { Hint } from './Hint';
@@ -58,12 +58,9 @@ export function App() {
 
   useEffect(() => whenSplashDone(() => setSplashOver(true)), []);
 
-  // Automatic updates wait while there's art on the canvas, the onboarding is up or a popup
-  // is open, so they never wipe someone's work.
-  // The engine is asked directly, so the hold ends as soon as the canvas is empty again,
-  // however it got that way.
+  // Automatic updates install whatever's going on, like Simple Soundboard's. Only Check for
+  // Updates asks this, so a manual check with nothing new doesn't wipe the canvas.
   const hasArt = useCallback(() => engineRef.current?.hasArt() ?? false, []);
-  useEffect(() => holdUpdates(() => hasArt() || latest.current.locked), [hasArt]);
 
   // The engine lives outside React state. Effects below push changes to it.
   useEffect(() => {

@@ -4,7 +4,7 @@ Open tabs update themselves in place, without reloading, through `public/live-up
 
 - When you ship a change to the site, raise the version in `version.yml`. The build (`glowVersion()` in `vite.config.ts`) writes it into `<meta name="glow-version">` in `index.html` and publishes `version.yml` next to the page. Live updates only install a page whose meta matches `version.yml`.
 - Anything that must be put away when the app is replaced registers `onDispose(fn)` from `src/runtime.ts` (`src/main.tsx` unmounts React there). Listeners on `window`/`document`, timers, animation frames, observers, fetches, Web Locks and WebGL contexts are cleaned up automatically.
-- Anything that would be lost by a restart registers `holdUpdates(fn)`. Automatic updates wait while it returns true (Glow holds while there's art on the canvas, during the onboarding and while a popup is open).
+- Automatic updates install as soon as they're found, whatever the person is doing (art on the canvas is not kept), just like Simple Soundboard. They only wait while the tab is hidden, and a hidden tab checks as soon as it's shown again. `holdUpdates(fn)` in `src/runtime.ts` can make them wait, but nothing uses it; don't add holds unless asked.
 - Keep the app in a single JS chunk (no dynamic `import()`), so an update never reuses a stale module from the previous version.
 - `public/live-update.js` itself is never replaced by a live update. Changes to it reach visitors on their next real page load.
 
