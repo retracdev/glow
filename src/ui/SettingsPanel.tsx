@@ -1,4 +1,6 @@
-import { RotateCcw, X } from 'lucide-react';
+import { LoaderCircle, RefreshCw, RotateCcw, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { canCheckForUpdates, checkForUpdates, currentVersion } from '../runtime';
 import { BACKGROUNDS, LIMITS, PRESETS, defaultSettings, type GlowSettings, type PaletteColors } from '../settings';
 
 interface SliderProps {
@@ -30,13 +32,68 @@ function Slider({ label, value, display, limits, onChange }: SliderProps) {
   );
 }
 
+/*
+ * Check for Updates, ported from Simple Soundboard's footer button. It asks the live updater
+ * (public/live-update.js) to fetch the newest Glow and restart it in this same page, which
+ * shows the toast that follows. With art on the canvas it only restarts for a newer version,
+ * so checking never wipes a drawing for nothing.
+ */
+function UpdateCheck({ hasArt }: { hasArt: () => boolean }) {
+  const [checking, setChecking] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
+  if (!canCheckForUpdates()) return null;
+
+  const check = async () => {
+    if (checking) return;
+    setChecking(true);
+    setFailed(false);
+    try {
+      // When Glow restarts, this panel goes away with the rest of the old app.
+      await checkForUpdates({ onlyIfNewer: hasArt() });
+    } catch (error) {
+      console.warn('Glow: Check for Updates failed.', error);
+      if (mounted.current) setFailed(true);
+    } finally {
+      if (mounted.current) setChecking(false);
+    }
+  };
+
+  const version = currentVersion();
+  return (
+    <div className="update-check">
+      <span>
+        Glow {version && `version ${version}`}
+        <small>{failed ? "Couldn't check for updates. Try again in a moment." : 'Updates install without reloading'}</small>
+      </span>
+      <button type="button" className="update-button" onClick={() => void check()} disabled={checking} aria-busy={checking}>
+        {checking ? (
+          <LoaderCircle className="update-spinner" size={14} strokeWidth={2} aria-hidden="true" />
+        ) : (
+          <RefreshCw size={14} strokeWidth={2} aria-hidden="true" />
+        )}
+        {checking ? 'Checking…' : 'Check for Updates'}
+      </button>
+    </div>
+  );
+}
+
 interface SettingsPanelProps {
   settings: GlowSettings;
   onChange: (settings: GlowSettings) => void;
   onClose: () => void;
+  // Whether there's art on the canvas that a restart would wipe.
+  hasArt: () => boolean;
 }
 
-export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProps) {
+export function SettingsPanel({ settings, onChange, onClose, hasArt }: SettingsPanelProps) {
   const set = <K extends keyof GlowSettings>(key: K, value: GlowSettings[K]) => onChange({ ...settings, [key]: value });
   const setColor = (index: number, hex: string) => {
     const palette = [...settings.palette] as PaletteColors;
@@ -123,6 +180,8 @@ export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProp
           <input type="checkbox" role="switch" checked={settings.reducedEffects} onChange={(e) => set('reducedEffects', e.target.checked)} />
           <span className="toggle-track" aria-hidden="true" />
         </label>
+
+        <UpdateCheck hasArt={hasArt} />
       </div>
     </section>
   );

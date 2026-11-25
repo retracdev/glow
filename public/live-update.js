@@ -740,9 +740,11 @@
     }));
   }
 
-  async function manual() {
+  async function manual(onlyIfNewer) {
     const published = await publishedVersion();
-    if (compareVersions(published, running.version) < 0) {
+    // Glow asks for this while there's art on the canvas, so a check never wipes it for nothing.
+    if (compareVersions(published, running.version) < 0
+      || (onlyIfNewer && compareVersions(published, running.version) === 0)) {
       toast('success', MESSAGES.current); // Never go back to an older version.
       return 'current';
     }
@@ -764,15 +766,17 @@
     return apply(pkg, compareVersions(pkg.version, running.version) > 0 ? 'updated' : 'refreshed');
   }
 
-  // Check for Updates: fetch the newest app and restart it, even if the version is the same.
-  // Resolves to 'updated', 'refreshed', 'current' or 'failed'; rejects if nothing could be fetched.
-  function refresh() {
+  // Check for Updates: fetch the newest app and restart it, even if the version is the same
+  // (unless options.onlyIfNewer). Resolves to 'updated', 'refreshed', 'current' or 'failed';
+  // rejects if nothing could be fetched.
+  function refresh(options) {
+    const onlyIfNewer = Boolean(options && options.onlyIfNewer);
     if (!manualRun) {
       const prior = busy && busy.result;
       manualRun = exclusive(async () => {
         // An automatic update that was already under way has just done the job.
         if (prior && (await prior.catch(() => null)) === 'updated') return 'updated';
-        return manual();
+        return manual(onlyIfNewer);
       });
       manualRun.then(() => { manualRun = null; }, () => { manualRun = null; });
     }

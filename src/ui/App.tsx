@@ -215,7 +215,14 @@ export function App() {
       {onboarded && <Brand />}
       {!locked && <div className="dock">
         {hint && <Hint key={hint.id} text={hint.text} />}
-        {panelOpen && <SettingsPanel settings={settings} onChange={setSettings} onClose={() => setPanelOpen(false)} />}
+        {panelOpen && (
+          <SettingsPanel
+            settings={settings}
+            onChange={setSettings}
+            onClose={() => setPanelOpen(false)}
+            hasArt={() => hasArt.current}
+          />
+        )}
         <Toolbar
           tool={tool}
           showDraw={coarse.current}
