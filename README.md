@@ -3,7 +3,7 @@
     width="150"
     height="150"
     alt="glow-logo"
-    src="https://github.com/user-attachments/assets/7aede672-64e0-49ed-b212-c649b3c7e2ef"
+    src="https://raw.githubusercontent.com/retracdev/glow/6d71c985f7c0f16de4195b208c01bf4ad5fcf38a/public/favicon.svg"
   />
 </div>
 
