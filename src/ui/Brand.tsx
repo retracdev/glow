@@ -64,7 +64,8 @@ export function Brand() {
   return (
     <header className="brand">
       <h1 className="brand-name">
-        <GlowMark />
+        <span className="brand-word">Glow</span>
+        <img className="brand-icon" src="/favicon.svg" alt="" width="26" height="26" />
       </h1>
       <span className="brand-sep" aria-hidden="true" />
       <a className="brand-link" href="https://retrac.space" target="_blank" rel="noreferrer">
