@@ -6,6 +6,7 @@ import { Brand } from './Brand';
 import { Hint } from './Hint';
 import { hasOnboarded, Onboarding } from './Onboarding';
 import { SettingsPanel } from './SettingsPanel';
+import { LinksToolbar } from './LinksToolbar';
 import { Toolbar } from './Toolbar';
 import { useCloudSaves } from './cloud/useCloudSaves';
 
@@ -242,6 +243,7 @@ export function App() {
           onCamera={() => void takePhoto()}
         />
       </div>}
+      {!locked && <LinksToolbar />}
       {!locked && !webglError && cloud.element}
     </div>
   );
