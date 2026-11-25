@@ -1,4 +1,4 @@
 # The published version of Glow. Open tabs read this every 30 seconds and switch to a newer
 # version in place, without reloading. To publish a change, raise this number.
 # The build copies it into <meta name="glow-version"> in index.html and next to the site.
-version: "1.1.3"
+version: "1.1.4"

@@ -143,6 +143,11 @@ export class Strokes {
     if (s.count < 3) s.dying = true;
   }
 
+  /** A drawn braid is on the canvas and isn't on its way out (taps that left nothing don't count). */
+  hasArt(): boolean {
+    return this.strokes.some((s) => s.active && !s.dying);
+  }
+
   clear(): void {
     for (const s of this.strokes) {
       if (s.active) {
