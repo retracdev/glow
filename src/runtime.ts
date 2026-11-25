@@ -8,7 +8,7 @@ interface GlowLiveUpdate {
   readonly version: string;
   readonly restarted: boolean;
   check(): Promise<unknown> | undefined;
-  refresh(): Promise<'updated' | 'refreshed' | 'current' | 'failed'>;
+  refresh(options?: { onlyIfNewer?: boolean }): Promise<'updated' | 'refreshed' | 'current' | 'failed'>;
   onDispose(fn: () => void | Promise<void>): void;
   hold(fn: () => boolean): void;
 }
@@ -39,6 +39,24 @@ export function holdUpdates(fn: () => boolean) {
 // True when a live update restarted Glow in this page, rather than a real page load.
 export function restartedByUpdate(): boolean {
   return Boolean(window.GlowLiveUpdate?.restarted);
+}
+
+// The running version, from <meta name="glow-version">.
+export function currentVersion(): string {
+  return (
+    window.GlowLiveUpdate?.version ??
+    document.querySelector('meta[name="glow-version"]')?.getAttribute('content') ??
+    ''
+  );
+}
+
+// Check for Updates. Undefined when the live updater isn't loaded, so there's nothing to ask.
+export function checkForUpdates(options?: { onlyIfNewer?: boolean }) {
+  return window.GlowLiveUpdate?.refresh(options);
+}
+
+export function canCheckForUpdates(): boolean {
+  return typeof window.GlowLiveUpdate?.refresh === 'function';
 }
 
 export function splashAppReady() {
