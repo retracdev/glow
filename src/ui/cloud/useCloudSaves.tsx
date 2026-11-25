@@ -1,4 +1,5 @@
 import {
+  CircleCheck,
   CloudAlert,
   CloudCheck,
   Hourglass,
@@ -14,9 +15,12 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import { ACCOUNTS, checkAccount, getAccountState, subscribeAccount, type AccountState } from '../../account/account';
+import { guidedSetupUrl, takeReturnIntent, type ReturnIntent } from '../../account/guided';
 import { encodePhoto } from '../../cloud/photo';
+import { stashPhoto, takeStashedPhoto } from '../../cloud/stash';
 import { forgetToken, StorageError, uploadPhoto, type StorageProblem } from '../../cloud/storage';
 import type { GlowEngine } from '../../engine/GlowEngine';
+import { whenSplashDone } from '../../runtime';
 import { CloudPopup, type PopupContent } from './CloudPopup';
 import { Gallery } from './Gallery';
 
@@ -26,7 +30,7 @@ const ACCOUNT_LOADER_MS = 780;
 
 // 'account' is the popup Glow shows by itself when the account needs action. It isn't on
 // the way to anything, so it just closes once the account is sorted out.
-type Intent = 'save' | 'gallery' | 'account';
+type Intent = ReturnIntent;
 type SignInStatus = 'guest' | 'incomplete' | 'action' | 'error';
 type Failure = StorageProblem | 'capture' | 'encode';
 
@@ -34,7 +38,8 @@ type Popup =
   | { view: 'loading'; label: string }
   // resolving: the visitor opened the page that fixes their account, so coming back checks again.
   | { view: 'signin'; status: SignInStatus; intent: Intent; resolving?: boolean }
-  | { view: 'waiting'; intent: Intent }
+  // Back from the guided sign-in page, signed in.
+  | { view: 'signedin'; intent: Intent; username: string }
   | { view: 'saved' }
   | { view: 'limit'; limit: number | null }
   | { view: 'failed'; failure: Failure };
@@ -239,11 +244,57 @@ export function useCloudSaves(engineRef: RefObject<GlowEngine | null>) {
     setGalleryOpen(true);
   }, [closePopup]);
 
-  // Sign-in happens in a new tab, like Simple Soundboard. Coming back checks the account.
-  const openAccounts = useCallback((intent: Intent, url = ACCOUNTS) => {
-    window.open(url, '_blank', 'noopener');
-    setPopup({ view: 'waiting', intent });
+  // Signing in goes to the retrac.space guided sign-in page in this tab, like Simple
+  // Soundboard, and it sends the visitor back here afterwards. A photo that hasn't been saved
+  // yet is kept for them meanwhile, so it can be saved once they're back.
+  const goToGuidedSetup = useCallback(async (intent: Intent) => {
+    const id = ++flow.current;
+    const photo = pendingRef.current;
+    if (photo) await stashPhoto(photo.blob, photo.takenAt);
+    // A second click, or the popup closing, while the photo was being put away.
+    if (flow.current !== id) return;
+    window.location.assign(guidedSetupUrl(intent));
   }, []);
+
+  // Back from guided setup: bring back any photo that was waiting, check the account, then
+  // carry on with what the visitor was doing.
+  const welcomeBack = useCallback(
+    async (intent: Intent) => {
+      const id = ++flow.current;
+      const start = performance.now();
+      setPopup({ view: 'loading', label: intent === 'save' ? 'Saving your photo' : 'Checking your account' });
+      const stashed = await takeStashedPhoto();
+      if (stashed && !pendingRef.current) {
+        const photo = { ...stashed, url: URL.createObjectURL(stashed.blob) };
+        replacePending(photo);
+        pendingRef.current = photo;
+      }
+      if (flow.current !== id) return;
+      const account = await checkAccount();
+      if (flow.current !== id) return;
+
+      const photo = pendingRef.current;
+      if (account.status === 'authenticated' && intent === 'save' && photo) {
+        await upload(id, photo, start);
+        return;
+      }
+      await untilElapsed(start, ACCOUNT_LOADER_MS);
+      if (flow.current !== id) return;
+      release();
+      if (account.status === 'authenticated') {
+        setPopup({ view: 'signedin', intent, username: account.username });
+      } else {
+        setPopup({ view: 'signin', status: signInStatus(account), intent });
+      }
+    },
+    [release, replacePending, upload],
+  );
+
+  useEffect(() => {
+    const intent = takeReturnIntent();
+    // After the loading screen, so the popup isn't hidden behind it.
+    if (intent) whenSplashDone(() => void welcomeBack(intent));
+  }, [welcomeBack]);
 
   // Opens the page that fixes the account in a new tab, and keeps this popup up meanwhile.
   // Coming back to Glow checks the account again, the same as after signing in.
@@ -279,8 +330,7 @@ export function useCloudSaves(engineRef: RefObject<GlowEngine | null>) {
     return subscribeAccount(onAccount);
   }, []);
 
-  const watchIntent =
-    popup?.view === 'waiting' ? popup.intent : popup?.view === 'signin' && popup.resolving ? popup.intent : null;
+  const watchIntent = popup?.view === 'signin' && popup.resolving ? popup.intent : null;
 
   useEffect(() => {
     if (watchIntent === null) return;
@@ -337,16 +387,18 @@ export function useCloudSaves(engineRef: RefObject<GlowEngine | null>) {
           primary: { label: 'Go to gallery', icon: Images, onClick: viewGallery },
           secondary: close,
         };
-      case 'waiting':
+      case 'signedin':
         return {
-          key: `waiting-${state.intent}`,
-          icon: UserRound,
-          tone: 'accent',
-          title: 'Finish signing in',
-          text: 'Sign in or create your account in the new tab. When you’re done, come back here and Glow will pick up where you left off.',
-          status: 'Waiting for your account',
-          primary: { label: 'I’ve signed in', onClick: () => verify(state.intent) },
-          secondary: { label: 'Open retrac.space again', onClick: () => openAccounts(state.intent) },
+          key: `signedin-${state.intent}`,
+          icon: CircleCheck,
+          tone: 'success',
+          title: 'You’re signed in',
+          text: `Welcome, ${state.username}. Your photos now save to your retrac.space account.`,
+          primary:
+            state.intent === 'gallery'
+              ? { label: 'View gallery', icon: Images, onClick: viewGallery }
+              : { label: 'Done', onClick: closePopup },
+          secondary: state.intent === 'gallery' ? close : undefined,
         };
       case 'signin':
         return describeSignIn(state.status, state.intent);
@@ -359,15 +411,17 @@ export function useCloudSaves(engineRef: RefObject<GlowEngine | null>) {
     const key = `signin-${status}-${intent}`;
     const notNow = { label: 'Not now', onClick: closePopup };
     const later =
-      intent === 'save' ? ' Your photo will be saved as soon as you’re signed in.' : '';
+      intent === 'save'
+        ? ' Your photo will be saved as soon as you’re back.'
+        : ' We’ll bring you right back here when you’re done.';
     if (status === 'incomplete') {
       return {
         key,
         icon: UserRoundCog,
         tone: 'accent',
         title: 'Finish setting up your account',
-        text: `Choose a username at retrac.space to start saving photos, then come back here.${later}`,
-        primary: { label: 'Open retrac.space', icon: LogIn, onClick: () => openAccounts(intent) },
+        text: `Choose a username at retrac.space to start saving photos.${later}`,
+        primary: { label: 'Finish setup', icon: LogIn, onClick: () => void goToGuidedSetup(intent) },
         secondary: notNow,
       };
     }
@@ -404,8 +458,8 @@ export function useCloudSaves(engineRef: RefObject<GlowEngine | null>) {
       text:
         intent === 'save'
           ? `Sign in with your retrac.space account to save photos to the cloud and see them in your gallery.${later}`
-          : 'Sign in with your retrac.space account to see the photos you’ve saved, download them, and make room for more.',
-      primary: { label: 'Sign in', icon: LogIn, onClick: () => openAccounts(intent) },
+          : `Sign in with your retrac.space account to see the photos you’ve saved, download them, and make room for more.${later}`,
+      primary: { label: 'Sign in or create account', icon: LogIn, onClick: () => void goToGuidedSetup(intent) },
       secondary: notNow,
     };
   }

@@ -4,6 +4,7 @@
  */
 import { restartedByUpdate, whenSplashDone } from '../runtime';
 import { checkAccount, getAccountState, subscribeAccount, type AccountState } from './account';
+import { returnedFromSignIn } from './guided';
 
 const greetings = [
   (username: string) => `Hey, hey, ${username}!`,
@@ -46,8 +47,9 @@ function showWelcomePill(username: string) {
   setTimeout(() => pill.remove(), 3800);
 }
 
-// Greets once per page load, whenever the account turns out to be signed in.
-let greeted = false;
+// Greets once per page load, whenever the account turns out to be signed in. Coming straight
+// back from the guided sign-in page shows "You're signed in" (or saves the photo) instead.
+let greeted = returnedFromSignIn;
 function greet(state: AccountState) {
   if (greeted || state.status !== 'authenticated') return;
   greeted = true;
