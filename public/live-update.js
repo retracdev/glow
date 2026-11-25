@@ -689,8 +689,8 @@
   }
 
   // A restart now would get in someone's way: the tab is hidden, the app is still loading, a
-  // dialog is open, or the app holds updates (art on the canvas, the onboarding, a popup).
-  // Automatic updates wait for a better moment.
+  // dialog is open, or the app has registered a hold (Glow doesn't use any). Automatic
+  // updates wait for a better moment; a hidden tab checks as soon as it's shown again.
   function held() {
     return current.holds.some((fn) => {
       try { return Boolean(fn()); } catch (error) { return true; }
