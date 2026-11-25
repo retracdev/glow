@@ -424,6 +424,14 @@ export class GlowEngine {
     waiters.forEach((waiter) => waiter(frame));
   }
 
+  /**
+   * Whether someone's work is on the canvas: drawn braids or black holes. Particle bursts,
+   * shockwaves and the free tubes come and go on their own, so they don't count.
+   */
+  hasArt(): boolean {
+    return this.strokes.hasArt() || this.blackHoles.hasArt();
+  }
+
   clear(): void {
     this.strokes.clear();
     this.blackHoles.clear();

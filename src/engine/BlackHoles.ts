@@ -126,6 +126,11 @@ export class BlackHoles {
     hole.dying = true;
   }
 
+  /** A black hole is on the canvas and isn't being removed. */
+  hasArt(): boolean {
+    return this.holes.some((h) => h.active && !h.dying);
+  }
+
   clear(): void {
     for (const h of this.holes) if (h.active) h.dying = true;
   }

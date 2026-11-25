@@ -37,8 +37,6 @@ export function App() {
   const [hint, setHint] = useState<{ id: number; text: string } | null>(null);
   // The onboarding and the first hint wait for the loading screen to go.
   const [splashOver, setSplashOver] = useState(splashDone);
-  // Something has been drawn or placed since the last clear. A live update would wipe it.
-  const hasArt = useRef(false);
   const [onboarded, setOnboarded] = useState(hasOnboarded);
   const finishOnboarding = useCallback(() => setOnboarded(true), []);
   // Glow is hands-off during the onboarding.
@@ -62,7 +60,10 @@ export function App() {
 
   // Automatic updates wait while there's art on the canvas, the onboarding is up or a popup
   // is open, so they never wipe someone's work.
-  useEffect(() => holdUpdates(() => hasArt.current || latest.current.locked), []);
+  // The engine is asked directly, so the hold ends as soon as the canvas is empty again,
+  // however it got that way.
+  const hasArt = useCallback(() => engineRef.current?.hasArt() ?? false, []);
+  useEffect(() => holdUpdates(() => hasArt() || latest.current.locked), [hasArt]);
 
   // The engine lives outside React state. Effects below push changes to it.
   useEffect(() => {
@@ -83,12 +84,7 @@ export function App() {
     engine.setFrozen(latest.current.frozen);
     engine.setMirror(latest.current.mirrorX, latest.current.mirrorY);
     engine.setInputEnabled(!latest.current.locked);
-    const markArt = () => {
-      if (!latest.current.locked) hasArt.current = true;
-    };
-    stage.addEventListener('pointerdown', markArt);
     return () => {
-      stage.removeEventListener('pointerdown', markArt);
       engine.dispose();
       engineRef.current = null;
     };
@@ -137,10 +133,7 @@ export function App() {
   );
 
   const triggerChaos = useCallback(() => engineRef.current?.triggerChaos(), []);
-  const clear = useCallback(() => {
-    engineRef.current?.clear();
-    hasArt.current = false;
-  }, []);
+  const clear = useCallback(() => engineRef.current?.clear(), []);
   const { takePhoto, openGallery } = cloud;
 
   useEffect(() => {
@@ -221,7 +214,7 @@ export function App() {
             settings={settings}
             onChange={setSettings}
             onClose={() => setPanelOpen(false)}
-            hasArt={() => hasArt.current}
+            hasArt={hasArt}
           />
         )}
         <Toolbar
