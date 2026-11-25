@@ -1,4 +1,5 @@
 import '@fontsource-variable/space-grotesk';
+import '@fontsource-variable/inter';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { startAccountWelcome } from './account/welcome';
